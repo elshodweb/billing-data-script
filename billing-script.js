@@ -1,11 +1,12 @@
-const ftp = require("basic-ftp");
+const iconv = require('iconv-lite');
 const fs = require("fs");
 const path = require("path");
 const os = require("os");
 const xlsx = require("xlsx");
+const ftp = require("basic-ftp");
+const axios = require("axios");
 
 const FTP_CONFIG = {
-
   port: 21,
   secure: true,
   secureOptions: {
@@ -57,12 +58,21 @@ async function processCsvFiles(client, fileSuffix, maxFiles) {
       await client.downloadTo(localFilePath, remoteFilePath);
 
       try {
-        const workbook = xlsx.readFile(localFilePath);
-        const rows = xlsx.utils.sheet_to_json(
-          workbook.Sheets[workbook.SheetNames[0]],
-          { defval: null }
-        );
+        // Чтение файла в оригинальной кодировке (например, windows-1251)
+        const fileBuffer = fs.readFileSync(localFilePath);
+        
+        // Конвертация в utf-8
+        const utf8Content = iconv.decode(fileBuffer, 'win1251');
+        
+        // Сохранение временного файла в кодировке utf-8
+        const tempFilePath = path.join(os.tmpdir(), 'temp_utf8.xlsx');
+        fs.writeFileSync(tempFilePath, utf8Content);
+
+        // Чтение файла с помощью xlsx
+        const workbook = xlsx.readFile(tempFilePath);
+        const rows = xlsx.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { defval: null });
         results.push(...rows);
+
       } catch (error) {
         console.error(`Error processing file ${file.name}:`, error.message);
       } finally {
@@ -78,10 +88,7 @@ async function processCsvFiles(client, fileSuffix, maxFiles) {
 }
 
 async function processOrganizations(fileSuffix) {
-  console.log(123213);
-
   const client = await connectToFtp();
-  console.log(123213);
 
   try {
     return await processCsvFiles(client, fileSuffix, MAX_PROCESSED_FILES);
@@ -112,12 +119,22 @@ async function main() {
     deactive.push(...deactiveOrg);
   }
 
-  console.log(
-    "Processing complete.",
-    "Files create: " + JSON.stringify(create),
-    "; files deactive: " + JSON.stringify(deactive)
+  const headers = {
+    accept: "*/*",
+    Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsInJvbGVJZCI6NCwiaWF0IjoxNzM2NTg1Mzk5LCJleHAiOjE3Mzc0NDkzOTl9.4fQ-8Scra695J-5d2w_CnxmaR3esG3pVP3vXaXdpLBY`,
+    "Content-Type": "application/json",
+  };
+  let response = await axios.post(
+    "http://localhost:3000/v1/ftp/create-organizations",
+    {
+      new: create,
+      deactive,
+    },
+    { headers }
   );
-  return { create, deactive };
+  console.log(response);
+
+  return { response };
 }
 
 main().catch((error) => {
