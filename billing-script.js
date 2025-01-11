@@ -5,9 +5,7 @@ const os = require("os");
 const xlsx = require("xlsx");
 
 const FTP_CONFIG = {
-  host: "127.0.0.1",
-  user: "ftpuser",
-  password: "1111",
+
   port: 21,
   secure: true,
   secureOptions: {
@@ -116,8 +114,8 @@ async function main() {
 
   console.log(
     "Processing complete.",
-    "Files create: " + create.length,
-    "; files deactive: " + deactive.length
+    "Files create: " + JSON.stringify(create),
+    "; files deactive: " + JSON.stringify(deactive)
   );
   return { create, deactive };
 }
