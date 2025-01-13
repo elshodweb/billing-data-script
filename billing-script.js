@@ -1,12 +1,14 @@
-const iconv = require('iconv-lite');
+const iconv = require("iconv-lite");
 const fs = require("fs");
 const path = require("path");
 const os = require("os");
 const xlsx = require("xlsx");
 const ftp = require("basic-ftp");
-const axios = require("axios");
 
 const FTP_CONFIG = {
+  host: "127.0.0.1",
+  user: "ftpuser",
+  password: "1111",
   port: 21,
   secure: true,
   secureOptions: {
@@ -22,6 +24,20 @@ async function connectToFtp() {
   client.ftp.verbose = true;
   await client.access(FTP_CONFIG);
   return client;
+}
+
+// Updated to handle CSV parsing directly, avoiding xlsx for CSV files
+function parseCsvContent(content) {
+  const lines = content.split("\n").map((line) => line.trim());
+  const headers = lines[0].split(";"); // Assuming semicolon-delimited CSV
+  const data = lines.slice(1).map((line) => {
+    const values = line.split(";");
+    return headers.reduce((obj, header, index) => {
+      obj[header] = values[index] || null;
+      return obj;
+    }, {});
+  });
+  return data;
 }
 
 async function processCsvFiles(client, fileSuffix, maxFiles) {
@@ -58,25 +74,21 @@ async function processCsvFiles(client, fileSuffix, maxFiles) {
       await client.downloadTo(localFilePath, remoteFilePath);
 
       try {
-        // Чтение файла в оригинальной кодировке (например, windows-1251)
+        // Read the file in the original encoding (e.g., windows-1251)
         const fileBuffer = fs.readFileSync(localFilePath);
-        
-        // Конвертация в utf-8
-        const utf8Content = iconv.decode(fileBuffer, 'win1251');
-        
-        // Сохранение временного файла в кодировке utf-8
-        const tempFilePath = path.join(os.tmpdir(), 'temp_utf8.xlsx');
-        fs.writeFileSync(tempFilePath, utf8Content);
 
-        // Чтение файла с помощью xlsx
-        const workbook = xlsx.readFile(tempFilePath);
-        const rows = xlsx.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { defval: null });
+        // Decode to UTF-8
+        const utf8Content = iconv.decode(fileBuffer, "utf8");
+        console.log("utf8Content", utf8Content);
+
+        // Parse CSV content directly
+
+        const rows = parseCsvContent(utf8Content);
         results.push(...rows);
-
       } catch (error) {
         console.error(`Error processing file ${file.name}:`, error.message);
       } finally {
-        fs.unlinkSync(localFilePath);
+        fs.unlinkSync(localFilePath); // Ensure temporary file is deleted
       }
 
       const renamedFilePath = `/${path.basename(file.name, ".csv")}_edited.csv`;
@@ -102,13 +114,20 @@ async function processOrganizations(fileSuffix) {
     client.close();
   }
 }
-
+function filterNullValues(data) {
+  return data.filter((item) => {
+    return Object.values(item).some(
+      (value) => value !== null && value !== "null" && value !== ""
+    );
+  });
+}
 async function main() {
   const create = [];
   let createdOrg = await processOrganizations("_new.csv");
   create.push(...createdOrg);
   while (createdOrg.length > 0) {
     createdOrg = await processOrganizations("_new.csv");
+
     create.push(...createdOrg);
   }
 
@@ -116,25 +135,28 @@ async function main() {
   let deactiveOrg = await processOrganizations("_deactive.csv");
   while (deactiveOrg.length > 0) {
     deactiveOrg = await processOrganizations("_deactive.csv");
+
     deactive.push(...deactiveOrg);
   }
 
-  const headers = {
-    accept: "*/*",
-    Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsInJvbGVJZCI6NCwiaWF0IjoxNzM2NTg1Mzk5LCJleHAiOjE3Mzc0NDkzOTl9.4fQ-8Scra695J-5d2w_CnxmaR3esG3pVP3vXaXdpLBY`,
-    "Content-Type": "application/json",
-  };
-  let response = await axios.post(
-    "http://localhost:3000/v1/ftp/create-organizations",
-    {
-      new: create,
-      deactive,
-    },
-    { headers }
+  const filteredCreate = filterNullValues(create);
+  const filteredDeactive = filterNullValues(deactive);
+  await fs.writeFile(
+    "data.json",
+    JSON.stringify({
+      new: filteredCreate,
+      deactive: filteredDeactive,
+    }),
+    (err) => {
+      if (err) {
+        console.error("Error writing file:", err);
+      } else {
+        console.log("File written successfully!");
+      }
+    }
   );
-  console.log(response);
 
-  return { response };
+  return { response: "Processing complete" };
 }
 
 main().catch((error) => {
