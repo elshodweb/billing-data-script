@@ -8,12 +8,13 @@ async function requestToGateWay() {
 
     const headers = {
       accept: "*/*",
+      Authorization: `Bearer `,
       "Content-Type": "application/json",
     };
 
     // Выполняем POST-запрос
     let response = await axios.post(
-      "https://admin-1009.ccenter.uz/v1/ftp/create-organizations",
+      "http://localhost:3000/v1/ftp/create-organizations",
       JSON.parse(data), // Парсим JSON из файла
       { headers }
     );
