@@ -20,9 +20,10 @@ async function requestToGateWay() {
     );
 
     console.log(response.data); // Выводим только данные ответа
+    return { status:"OK"}
   } catch (error) {
     console.error("Error occurred:", error.message);
   }
 }
 
-requestToGateWay();
+module.export = requestToGateWay;

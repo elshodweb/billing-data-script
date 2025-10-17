@@ -6,11 +6,11 @@ const xlsx = require("xlsx");
 const ftp = require("basic-ftp");
 
 const FTP_CONFIG = {
-  host: "127.0.0.1",
-  user: "ftpuser",
-  password: "1111",
+  host: "192.168.42.172",
+  user: "ftpcsv",
+  password: "qwerty123",
   port: 21,
-  secure: true,
+  secure: false,
   secureOptions: {
     rejectUnauthorized: false,
   },
@@ -121,7 +121,7 @@ function filterNullValues(data) {
     );
   });
 }
-async function main() {
+async function importData() {
   const create = [];
   let createdOrg = await processOrganizations("_new.csv");
   create.push(...createdOrg);
@@ -156,9 +156,7 @@ async function main() {
     }
   );
 
-  return { response: "Processing complete" };
+  return { status: "OK" };
 }
 
-main().catch((error) => {
-  console.error("Error in main:", error.message);
-});
+module.export = importData;
