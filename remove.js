@@ -1,9 +1,7 @@
 const ftp = require("basic-ftp");
 
 const FTP_CONFIG = {
-  host: "192.168.42.172",
-  user: "ftpcsv",
-  password: "qwerty123",
+ 
   port: 21,
   secure: false,
   secureOptions: {
