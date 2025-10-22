@@ -1,9 +1,12 @@
 function scheduleMidnightJob(func) {
   const now = new Date();
   const next = new Date();
-  next.setHours(24, 0, 0, 0); // next midnight
+  next.setHours(13, 18, 0, 0); // next midnight
   const delay = next - now;
-
+  console.log(next,"next::");
+  console.log(now,"now::");
+  console.log(delay,"delay::");
+  
   setTimeout(async function run() {
     await func().catch((err) => {
       if (err) {
@@ -15,4 +18,4 @@ function scheduleMidnightJob(func) {
     scheduleMidnightJob(); // reschedule for next day
   }, delay);
 }
-module.export = scheduleMidnightJob;
+module.exports = scheduleMidnightJob;

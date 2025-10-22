@@ -8,13 +8,15 @@ async function requestToGateWay() {
 
     const headers = {
       accept: "*/*",
-      Authorization: `Bearer `,
+      Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInJvbGVJZCI6MiwiaWF0IjoxNzYxMTMyNDQ0LCJleHAiOjE3NjE5OTY0NDR9.i2U_U78QrxnnHZJbMQ6zFgMLweZ42cJAsMKr9YDi8q4`,
       "Content-Type": "application/json",
     };
 
     // Выполняем POST-запрос
+    console.log(data);
+    
     let response = await axios.post(
-      "http://localhost:3000/v1/ftp/create-organizations",
+      "http://localhost:4000/v1/ftp/create-organizations",
       JSON.parse(data), // Парсим JSON из файла
       { headers }
     );
@@ -25,5 +27,5 @@ async function requestToGateWay() {
     console.error("Error occurred:", error.message);
   }
 }
-
-module.export = requestToGateWay;
+requestToGateWay();
+module.exports = requestToGateWay;

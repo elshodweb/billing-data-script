@@ -1,6 +1,5 @@
 let billingScriptFunc = require("./billing-script.js");
 let requestToGateWay = require("./requestFile.js");
-let cron = require("./cron.js");
 async function main() {
   const res = await billingScriptFunc();
   if (res.status === "OK") {
@@ -13,4 +12,4 @@ async function main() {
   }
 }
 
-cron(main);
+module.exports = main;

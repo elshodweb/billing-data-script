@@ -6,7 +6,6 @@ const xlsx = require("xlsx");
 const ftp = require("basic-ftp");
 
 const FTP_CONFIG = {
-
   port: 21,
   secure: false,
   secureOptions: {
@@ -112,6 +111,7 @@ async function processOrganizations(fileSuffix) {
     client.close();
   }
 }
+
 function filterNullValues(data) {
   return data.filter((item) => {
     return Object.values(item).some(
@@ -119,6 +119,7 @@ function filterNullValues(data) {
     );
   });
 }
+
 async function importData() {
   const create = [];
   let createdOrg = await processOrganizations("_new.csv");
@@ -131,19 +132,30 @@ async function importData() {
 
   const deactive = [];
   let deactiveOrg = await processOrganizations("_deactive.csv");
+  deactive.push(...deactiveOrg);
   while (deactiveOrg.length > 0) {
     deactiveOrg = await processOrganizations("_deactive.csv");
 
     deactive.push(...deactiveOrg);
   }
 
+  const update = [];
+  let updateOrg = await processOrganizations("_update.csv");
+  update.push(...updateOrg);
+  while (updateOrg.length > 0) {
+    updateOrg = await processOrganizations("_update.csv");
+    update.push(...updateOrg);
+  }
+
   const filteredCreate = filterNullValues(create);
   const filteredDeactive = filterNullValues(deactive);
+  const filteredUpdate = filterNullValues(update);
   await fs.writeFile(
     "data.json",
     JSON.stringify({
       new: filteredCreate,
       deactive: filteredDeactive,
+      update: filteredUpdate,
     }),
     (err) => {
       if (err) {
@@ -157,4 +169,4 @@ async function importData() {
   return { status: "OK" };
 }
 
-module.export = importData;
+module.exports = importData;
