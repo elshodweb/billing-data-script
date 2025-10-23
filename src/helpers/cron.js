@@ -1,12 +1,16 @@
 function scheduleMidnightJob(func) {
   const now = new Date();
   const next = new Date();
-  next.setHours(13, 18, 0, 0); // next midnight
+  //next.setHours: (hours, minutes, seconds, milliseconds) required!!!
+  next.setHours(12, 47, 0, 0);
+  if (next <= now) {
+    next.setDate(next.getDate() + 1);
+  }
   const delay = next - now;
-  console.log(next,"next::");
-  console.log(now,"now::");
-  console.log(delay,"delay::");
-  
+  console.log("next::", next);
+  console.log("now::", now);
+  console.log("delay::", delay);
+
   setTimeout(async function run() {
     await func().catch((err) => {
       if (err) {

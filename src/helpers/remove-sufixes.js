@@ -1,7 +1,7 @@
 const ftp = require("basic-ftp");
 
 const FTP_CONFIG = {
-  
+ 
   port: 21,
   secure: false,
   secureOptions: {

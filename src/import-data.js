@@ -2,10 +2,10 @@ const iconv = require("iconv-lite");
 const fs = require("fs");
 const path = require("path");
 const os = require("os");
-const xlsx = require("xlsx");
 const ftp = require("basic-ftp");
 
 const FTP_CONFIG = {
+
   port: 21,
   secure: false,
   secureOptions: {
@@ -150,8 +150,8 @@ async function importData() {
   const filteredCreate = filterNullValues(create);
   const filteredDeactive = filterNullValues(deactive);
   const filteredUpdate = filterNullValues(update);
-  await fs.writeFile(
-    "data.json",
+  fs.writeFile(
+    path.join(__dirname, "..", "data.json"),
     JSON.stringify({
       new: filteredCreate,
       deactive: filteredDeactive,

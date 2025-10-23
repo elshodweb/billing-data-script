@@ -1,4 +1,4 @@
-const main = require("./mainFunc");
+const main = require("./src/main");
 
 async function func() {
   await main().catch((err) => {

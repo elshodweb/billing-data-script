@@ -1,9 +1,9 @@
 {
   "name": "billing-data-script",
   "version": "1.0.0",
-  "main": "billing-script.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "cron": "node run-cron.js",
+    "start": "node run-main.js"
   },
   "author": "",
   "license": "ISC",

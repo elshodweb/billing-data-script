@@ -1,4 +1,4 @@
-const cron = require("./cron");
-const main = require("./main");
+const cron = require("./src/helpers/cron");
+const main = require("./src/main");
 
 cron(main);
