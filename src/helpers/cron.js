@@ -2,7 +2,7 @@ function scheduleMidnightJob(func) {
   const now = new Date();
   const next = new Date();
   //next.setHours: (hours, minutes, seconds, milliseconds) required!!!
-  next.setHours(12, 47, 0, 0);
+  next.setHours(1, 0, 0, 0);
   if (next <= now) {
     next.setDate(next.getDate() + 1);
   }
