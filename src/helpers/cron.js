@@ -7,8 +7,8 @@ function scheduleMidnightJob(func) {
     next.setDate(next.getDate() + 1);
   }
   const delay = next - now;
-  console.log("next::", next);
   console.log("now::", now);
+  console.log("next::", next);
   console.log("delay::", delay);
 
   setTimeout(async function run() {

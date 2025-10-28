@@ -3,9 +3,12 @@ const fs = require("fs");
 const path = require("path");
 const os = require("os");
 const ftp = require("basic-ftp");
-
+let dotenv = require("dotenv");
+dotenv.config();
 const FTP_CONFIG = {
-
+  host: process.env.FTP_HOST,
+  user: process.env.FTP_USER,
+  password: process.env.FTP_PASSWORD,
   port: 21,
   secure: false,
   secureOptions: {

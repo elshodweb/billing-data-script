@@ -1,7 +1,10 @@
 const ftp = require("basic-ftp");
-
+let dotenv = require("dotenv");
+dotenv.config();
 const FTP_CONFIG = {
- 
+  host: process.env.FTP_HOST,
+  user: process.env.FTP_USER,
+  password: process.env.FTP_PASSWORD,
   port: 21,
   secure: false,
   secureOptions: {
@@ -20,9 +23,7 @@ async function removeEditedSuffix(client) {
   const fileList = await client.list();
 
   const editedFiles = fileList.filter(
-    (file) =>
-      !file.isDirectory &&
-      file.name.endsWith("_edited.csv")
+    (file) => !file.isDirectory && file.name.endsWith("_edited.csv")
   );
 
   if (editedFiles.length === 0) {

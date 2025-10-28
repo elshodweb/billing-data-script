@@ -1,5 +1,7 @@
 let billingScriptFunc = require("./import-data.js");
 let requestToGateWay = require("./requestFile.js");
+let dotenv = require("dotenv");
+dotenv.config();
 async function main() {
   const res = await billingScriptFunc();
   if (res.status === "OK") {
