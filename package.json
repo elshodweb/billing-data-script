@@ -2,8 +2,8 @@
   "name": "billing-data-script",
   "version": "1.0.0",
   "scripts": {
-    "cron": "node run-cron.js",
-    "start": "node run-main.js"
+    "start": "node run-cron.js",
+    "instant": "node run-main.js"
   },
   "author": "",
   "license": "ISC",
